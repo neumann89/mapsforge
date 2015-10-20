@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="config.xsd">
+	<!-- Put in all the tags you need for the routing here -->
+	<routingTags>
+		<wayTags>
+			<tag k="name" />
+			<tag k="junction" v="roundabout" />
+		</wayTags>
+		<nodeTags>
+		</nodeTags>
+		<relationTags>
+		<!-- speed camera (not used so often, relation is used more often -->
+<!-- 		<tag k="enforcement" v="maxspeed" /> -->
+		</relationTags>
+	</routingTags>
+	<vehicles>
+		<!-- new Vehicle -->
+		<vehicle name="motorcar" maxspeed="130">
+			<!-- all allowed ways (key - value) -->
+			<usableWayTags>
+				<tag k="highway" v="motorway" maxspeed="100" />
+				<tag k="highway" v="motorway_link" maxspeed="80" />
+				<tag k="highway" v="trunk" maxspeed="90" />
+				<tag k="highway" v="trunk_link" maxspeed="70" />
+				<tag k="highway" v="primary" maxspeed="50" />
+				<tag k="highway" v="primary_link" maxspeed="35" />
+				<tag k="highway" v="secondary" maxspeed="40" />
+				<tag k="highway" v="secondary_link" maxspeed="30" />
+				<tag k="highway" v="tertiary" maxspeed="35" />
+				<tag k="highway" v="unclassified" maxspeed="35" />
+				<tag k="highway" v="road" maxspeed="35" />
+				<tag k="highway" v="residential" maxspeed="25" />
+				<tag k="highway" v="living_street" maxspeed="10" />
+<!-- 				<tag k="highway" v="track" maxspeed="50" /> -->
+			</usableWayTags>
+			<restrictions>
+				<wayTags>
+				<!--  all restrictions, a car can't drive on ways with this tags (new tags automatically included) -->
+					<tag k="motorcar" v="no" />
+					<tag k="vehicle" v="no" />
+					<tag k="access" v="no" />
+					<tag k="access" v="agricultural" />
+					<tag k="access" v="delivery" />
+					<tag k="access" v="private" />
+					<tag k="motorcar" v="agricultural" />
+					<tag k="motorcar" v="delivery" />
+					<tag k="motorcar" v="private" />
+					<tag k="vehicle" v="agricultural" />
+					<tag k="vehicle" v="delivery" />
+					<tag k="vehicle" v="private" />
+					<tag k="motor_vehicle" v="agricultural" />
+					<tag k="motor_vehicle" v="delivery" />
+					<tag k="motor_vehicle" v="private" />
+				</wayTags>
+				<relationTags>
+				<!--  some turn restrictions and other stuff (new tags have to be implemented separately )-->
+					<tag k="restriction" v="no_left_turn" />
+					<tag k="restriction" v="no_right_turn" />
+					<tag k="restriction" v="no_straight_on" />
+					<tag k="restriction" v="only_left_turn" />
+					<tag k="restriction" v="only_right_turn" />
+					<tag k="restriction" v="only_straight_on"/>
+					<tag k="restriction" v="no_u_turn"/>
+				</relationTags>
+			</restrictions>
+		</vehicle>
+		<vehicle name="bicycle" maxspeed="30">
+			<usableWayTags>
+				<tag k="highway" v="primary" maxspeed="30" />
+				<tag k="highway" v="primary_link" maxspeed="30" />
+				<tag k="highway" v="secondary" maxspeed="20" />
+				<tag k="highway" v="secondary_link" maxspeed="20" />
+				<tag k="highway" v="tertiary" maxspeed="20" />
+				<tag k="highway" v="unclassified" maxspeed="20" />
+				<tag k="highway" v="road" maxspeed="20" />
+				<tag k="highway" v="residential" maxspeed="20" />
+				<tag k="highway" v="living_street" maxspeed="10" />
+				<tag k="highway" v="track" maxspeed="15" />
+				<tag k="highway" v="path" maxspeed="15" />
+				<tag k="highway" v="cycleway" maxspeed="30" />
+			</usableWayTags>
+			<restrictions>
+				<wayTags>
+					<tag k="access" v="no" />
+					<tag k="access" v="private" />
+					<tag k="bicycle" v="no" />
+				</wayTags>
+				<relationTags>
+				<!--  some turn restrictions -->
+					<tag k="restriction" v="no_left_turn" />
+					<tag k="restriction" v="no_right_turn" />
+					<tag k="restriction" v="no_straight_on" />
+					<tag k="restriction" v="only_left_turn" />
+					<tag k="restriction" v="only_right_turn" />
+					<tag k="restriction" v="only_straight_on"/>
+					<tag k="restriction" v="no_u_turn"/>
+				</relationTags>
+			</restrictions>
+
+		</vehicle>
+		<vehicle name="foot" maxspeed="10">
+			<usableWayTags>
+				<tag v="secondary" k="highway" maxspeed="5" />
+				<tag v="secondary_link" k="highway" maxspeed="5" />
+				<tag v="tertiary" k="highway" maxspeed="5" />
+				<tag v="unclassified" k="highway" maxspeed="5" />
+				<tag v="road" k="highway" maxspeed="5" />
+				<tag v="residential" k="highway" maxspeed="5" />
+				<tag v="living_street" k="highway" maxspeed="5" />
+				<tag v="track" k="highway" maxspeed="5" />
+				<tag v="path" k="highway" maxspeed="5" />
+				<tag v="cycleway" k="highway" maxspeed="5" />
+				<tag v="pedestrian" k="highway" maxspeed="5" />
+				<tag v="footway" k="highway" maxspeed="5" />
+			</usableWayTags>
+			<restrictions>
+				<wayTags>
+					<tag k="foot" v="no" />
+				</wayTags>
+				<relationTags>
+				</relationTags>
+			</restrictions>
+		</vehicle>
+	</vehicles>
+
+	<metrics>
+	<!--  ATTENTION: every new metric which is not a "fastest-metric" has to be implemented -->
+		<weightMetric name="fastest-motorcar">
+			<stopTags>
+				<stopNodeTags>
+					<!-- conditional stops, with an expected time value (new tags are included automatically)-->
+					<!-- traffic light -->
+					<!--  at junction -->
+					<tag k="highway" v="traffic_signals" time="3" />
+					<!-- street crossing -->
+					<tag k="crossing" v="traffic_signals" time="2" />
+					<!-- crossings -->
+					<tag k="highway" v="crossing" time="1" />
+					<tag k="crossing" v="uncontrolled" time="1" />
+					<tag k="crossing" v="unmarked" time="1" />
+					<tag k="crossing" v="island" time="1" />
+					<tag k="railway" v="level_crossing" time="5" />
+					<tag k="highway" v="give_way" time="4" />
+					<tag k="highway" v="mini_roundabout" time="1" />
+					<!-- predictable stops -->
+					<tag k="highway" v="stop" time="4" />
+					<tag k="barrier" v="toll_booth" time="200" />
+				</stopNodeTags>
+				<stopWayTags>
+				<!-- stops on ways (new tags are included automatically) -->
+					<!-- stopsigns not used so often-->
+<!-- 					<tag k="stop" v="yes" time="30" /> -->
+<!-- 					<tag k="stop" v="both" time="30" /> -->
+<!-- 					<tag k="stop" v="all" time="30" /> -->
+
+					<tag k="junction" v="roundabout" time="1" />
+				</stopWayTags>
+				<!-- signs which are tagged and stop you directly in front of a junction  -->
+				<junctionNodeTags>
+				<!-- tags which can be tagged on a junction and directly before (improves precission) -->
+					<tag k="highway" v="traffic_signals"/>
+					<tag k="highway" v="give_way"/>
+					<tag k="highway" v="stop"/>
+				</junctionNodeTags>
+
+			</stopTags>
+			<speedreductions>
+				<!-- speedreductions over a longer distance (new tags automatically included)-->
+				<wayTags>
+					<tag k="junction" v="roundabout" maxspeed="25" />
+					<tag k="tracktype" v="grade2" maxspeed="50" />
+					<tag k="tracktype" v="grade3" maxspeed="30" />
+					<tag k="tracktype" v="grade4" maxspeed="20" />
+					<tag k="tracktype" v="grade5" maxspeed="10" />
+					<tag k="surface" v="unpaved" maxspeed="25" />
+					<tag k="suface" v="gravel" maxspeed="30" />
+					<tag k="surface" v="compacted" maxspeed="50" />
+					<tag k="surface" v="pebblestone" maxspeed="30" />
+					<tag k="surface" v="sand" maxspeed="40" />
+					<tag k="surface" v="dirt" maxspeed="30" />
+					<tag k="surface" v="mud" maxspeed="20" />
+				</wayTags>
+				<nodeTags>
+					<!-- speedreductions over a short distance, implemented over 20 m (new tags automatically included)-->
+					<tag k="highway" v="speed_camera" maxspeed="50" />
+					<tag k="traffic_calming" v="yes" maxspeed="30" />
+					<tag k="traffic_calming" v="bump" maxspeed="20" />
+					<tag k="traffic_calming" v="chicane" maxspeed="30" />
+					<tag k="traffic_calming" v="cushion" maxspeed="50" />
+					<tag k="traffic_calming" v="hump" maxspeed="50" />
+					<tag k="traffic_calming" v="rumble_strip" maxspeed="20" />
+					<tag k="highway" v="mini_roundabout" maxspeed="40" />
+				</nodeTags>
+				<!--  ATTENTION when you add additional tags here you have to implement it, so that it's recognized in the code-->
+				<dynamicWayTags>
+					<tag k="maxspeed" />
+				</dynamicWayTags>
+			</speedreductions>
+			<!-- ATTENTION: the following tags don't exist in OSM !!! -->
+			<noOSMTags>
+				<!-- time for turning left and right -->
+				<tag k="right_turn" v="30" />
+				<tag k="left_turn" v="60" />
+				<!-- settings for time metric -->
+				<tag k="crossSignDistance" v="25"/>
+				<tag k="barrierSpeedDistance" v="15"/>
+			</noOSMTags>
+		</weightMetric>
+		<weightMetric name="fastest-bicycle">
+				<stopTags>
+					<stopNodeTags>
+						<tag k="highway" v="traffic_signals" time="90" />
+						<tag k="highway" v="give_way" time="45" />
+						<tag k="railway" v="level_crossing" time="120" />
+						<tag k="highway" v="crossing" time="20" />
+						<tag k="junction" v="roundabout" time="10" />
+					</stopNodeTags>
+					<stopWayTags>
+					</stopWayTags>
+					<junctionNodeTags>
+					<tag k="highway" v="traffic_signals"/>
+					<tag k="highway" v="give_way"/>
+					<tag k="highway" v="stop"/>
+					</junctionNodeTags>
+				</stopTags>
+				<speedreductions>
+					<wayTags>
+						<tag k="suface" v="gravel" maxspeed="30" />
+						<tag k="surface" v="cobblestone" maxspeed="30" />
+						<tag k="surface" v="compacted" maxspeed="20" />
+						<tag k="surface" v="pebblestone" maxspeed="30" />
+						<tag k="surface" v="sand" maxspeed="40" />
+						<tag k="surface" v="dirt" maxspeed="60" />
+						<tag k="surface" v="mud" maxspeed="70" />
+						<tag k="tracktype" v="grade2" maxspeed="10" />
+						<tag k="tracktype" v="grade3" maxspeed="20" />
+						<tag k="tracktype" v="grade4" maxspeed="50" />
+						<tag k="tracktype" v="grade5" maxspeed="80" />
+					</wayTags>
+					<nodeTags>
+						<tag k="traffic_calming" v="yes" maxspeed="50" />
+						<tag k="traffic_calming" v="bump" maxspeed="50" />
+						<tag k="traffic_calming" v="hump" maxspeed="50" />
+						<tag k="traffic_calming" v="rumble_strip" maxspeed="10" />
+						<tag k="barrier" v="cycle_barrier" maxspeed="80" />
+					</nodeTags>
+					<dynamicWayTags>
+						<tag k="incline" />
+						<tag k="maxspeed" />
+					</dynamicWayTags>
+				</speedreductions>
+				<noOSMTags>
+					<!-- time for turning left and right -->
+					<tag k="right_turn" v="30" />
+					<tag k="left_turn" v="60" />
+					<!-- settings for time metric -->
+					<tag k="crossSignDistance" v="25"/>
+					<tag k="barrierSpeedDistance" v="15"/>
+				</noOSMTags>
+		</weightMetric>
+		<weightMetric name="fastest-foot">
+				<stopTags>
+					<stopNodeTags>
+						<!-- would be considered even when no road is crossed -->
+						<!-- <tag k="crossing" v="traffic_signals" time="60" /> -->
+						<tag k="railway" v="crossing" time="120" />
+						<!-- would be considered even when no road is crossed -->
+						<!-- <tag k="highway" v="crossing" time="20" /> -->
+					</stopNodeTags>
+					<stopWayTags>
+
+					</stopWayTags>
+					<junctionNodeTags>
+				</junctionNodeTags>
+				</stopTags>
+				<speedreductions>
+					<wayTags></wayTags>
+					<nodeTags></nodeTags>
+					<dynamicWayTags></dynamicWayTags>
+				</speedreductions>				
+				<noOSMTags>
+					<!-- settings for time metric -->
+					<tag k="crossSignDistance" v="0"/>
+					<tag k="barrierSpeedDistance" v="0"/>
+				</noOSMTags>
+		</weightMetric>
+	</metrics>
+</config>

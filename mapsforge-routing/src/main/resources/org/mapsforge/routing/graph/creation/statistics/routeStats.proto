@@ -1,0 +1,48 @@
+//package org.mapsforge.preprocessing.routingGraph.graphCreation.binCreation;
+
+option java_package = "package org.mapsforge.preprocessing.routingGraph.graphCreation.binCreation";
+option java_outer_classname = "StatsCreatorProtos";
+
+message GeoCoordinatePBF {
+	required double latitude = 1;
+	required double longitude = 2;
+}
+
+message KeyValuePairPBF {
+	optional string value = 1;
+	required string key = 2;
+}
+
+message CompleteNodePBF {
+	required int64 id=1;
+	optional GeoCoordinatePBF coordinate = 2;
+	repeated KeyValuePairPBF additionalTags = 3;
+}
+
+message CompleteEdgePBF {
+	required int64 id = 1;
+	optional int32 sourceID = 2;
+	optional int32 targetID = 3;
+	repeated GeoCoordinatePBF allWaypoints = 4;
+	optional string name = 5;
+	optional string type = 6;
+	optional bool roundabout = 7;
+	optional bool isOneWay = 8;
+	optional string ref = 9;
+	optional string destination = 10;
+	optional int32 weight = 11;
+	repeated KeyValuePairPBF additionalTags = 12;
+	repeated CompleteNodePBF allUsedNodes=13;
+	required int32 index =14;
+}
+
+message IndexEdgePBF{
+	required string scrTarget=1;
+	required int32 edgeId=2;
+}
+
+message AllGraphDataPBF {
+	repeated CompleteEdgePBF allEdges = 1;
+	repeated IndexEdgePBF allEdgeIndexes=2;
+
+}
