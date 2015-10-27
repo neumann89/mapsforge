@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/poilist"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/poilist_buttons"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black" >
+
+   	<Button
+       android:id="@+id/poilist_button"
+       android:layout_width="150dp"
+       android:layout_height="50dp"
+       android:text="Ok" />
+
+	
+	<Button
+        android:id="@+id/poilist_button2"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_toRightOf="@id/poilist_button"
+        android:text="Cancel" />
+    </RelativeLayout>
+    
+   <ListView
+        android:id="@+id/poilistview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/poilist_buttons"
+        android:background="@color/white">
+	</ListView>
+   		
+</RelativeLayout>

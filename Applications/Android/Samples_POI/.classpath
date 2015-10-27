@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/org/mapsforge/mapsforge-poi-reader/0.3.1-SNAPSHOT/mapsforge-poi-reader-0.3.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/org/mapsforge/mapsforge-poi-searching/0.3.1-SNAPSHOT/mapsforge-poi-searching-0.3.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/org/mapsforge/mapsforge-map/0.3.1-SNAPSHOT/mapsforge-map-0.3.1-SNAPSHOT-jar-with-dependencies.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/org/mapsforge/mapsforge-routing/0.3.0-SNAPSHOT/mapsforge-routing-0.3.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/com/vividsolutions/jts/1.12/jts-1.12.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/net/sf/trove4j/trove4j/3.0.2/trove4j-3.0.2.jar"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="output" path="bin/classes"/>
+</classpath>

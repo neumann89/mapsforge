@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="mapsforge-produce">
+	<property name="mapsforge.version" value="0.3.1-SNAPSHOT" />
+	
+	<!-- JVM args -->
+	<property name="xmx" value="5000M"/>
+
+    <property name="configXmlFile" value="${basedir}/src/main/java/org/mapsforge/routing/graph/creation/config/config.xml" />
+
+	<!-- osmosis executable (adjust to linux or windows) -->
+	<property name="osmosis" value="osmosis"/>
+
+	<!-- psql executable (adjust to linux or windows) -->
+	<property name="psql" value="psql"/>
+
+
+	<!-- directories -->
+	<property name="lib" value="lib/"/>
+	<property name="data.osm" value="data/osm/"/>
+	<property name="data.binary" value="data/binary/"/>
+	<property name="data.temp" value="data/temp/"/>
+	
+	<!-- database fo highway hierarchies preprocessing -->
+	<property name="db.host" value="127.0.0.1"/>
+	<property name="db.port" value="5432"/>
+	<property name="db.name" value="mapsforge"/>
+	<property name="db.user" value="mapsforge"/>
+	<property name="db.pass" value="mapsforge"/>
+
+    <!-- options -->
+    <property name="saveStatsToPbf" value="false"/>
+
+	<!-- load contrib tasks -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	  	<classpath>
+	    	<pathelement location="lib/ant-contrib-1.0b3.jar"/>
+	  	</classpath>
+	</taskdef>
+		
+	<!-- download osm data -->
+	<target name="get-osm">
+		<mkdir dir="${data.osm}"/>
+		<!--
+		<get dest="${data.osm}/baden-wuerttemberg.osm.pbf" src="http://download.geofabrik.de/osm/europe/germany/baden-wuerttemberg.osm.pbf" usetimestamp="true"/>
+		<get dest="${data.osm}/bayern.osm.pbf" src="http://download.geofabrik.de/osm/europe/germany/bayern.osm.pbf" usetimestamp="true"/>
+		<get dest="${data.osm}/brandenburg.osm.pbf" src="http://download.geofabrik.de/osm/europe/germany/brandenburg.osm.pbf" usetimestamp="true"/>
+		<get dest="${data.osm}/bremen.osm.pbf" src="http://download.geofabrik.de/osm/europe/germany/bremen.osm.pbf" usetimestamp="true"/>
+		<get dest="${data.osm}/germany.osm.pbf" src="http://download.geofabrik.de/osm/europe/germany.osm.pbf" usetimestamp="true"/>
+		
+		<get dest="${data.osm}/berlin.osm.pbf" src="http://download.geofabrik.de/osm/europe/germany/berlin.osm.pbf" usetimestamp="true"/>
+	-->
+		
+	</target>
+
+	<!-- produce map and routing binaries -->
+	<target name="produce-binaries" depends="get-osm">
+		<mkdir dir="${data.binary}"/>
+		<mkdir dir="${data.temp}"/>
+
+        <ant antfile="build.xml" target="mapsforge-graph-creator-jar-copy"/>
+        <ant antfile="build.xml" target="mapsforge-offboard-routing-jar-copy"/>
+        <ant antfile="build.xml" target="mapsforge-onboard-routing-jar-copy"/>
+
+		<foreach target="produce-binaries-loop" param="file">
+			<path> 
+				<fileset dir="${data.osm}" casesensitive="yes">
+		       		<include name="*.pbf"/>
+		     	</fileset>
+			</path>
+		</foreach>
+
+		<delete dir="${data.temp}"/>
+	</target>
+	
+	<target name="produce-binaries-loop" depends="get-osm">  
+		<antcall target="extract-completeGraph">
+			<param name="file" value="${file}" />
+		</antcall>
+		<antcall target="import-rg">
+			<param name="file" value="${file}"/>
+		</antcall>
+		<antcall target="include-turn-restrictions"/>
+		<antcall target="produce-onboard-routing-binary">
+			<param name="file" value="${file}"/>
+		</antcall>
+<!--
+		<antcall target="produce-offboard-routing-binary">
+			<param name="file" value="${file}"/>
+		</antcall>
+		<antcall target="produce-onboard-routing-binary-ch">
+			<param name="file" value="${file}"/>
+		</antcall>
+        TODO: not implemented, yet
+		<antcall target="produce-offboard-routing-binary-ch">
+			<param name="file" value="${file}"/>
+		</antcall>
+-->
+	</target>
+		
+	<!-- extract routing graph -->
+	<target name="extract-rg">
+		<basename file="${file}" property="basename" suffix=".osm.pbf"/>
+		<exec executable="${osmosis}">
+		    <arg value="--rb"/>
+		    <arg value="${file}"/>
+		    <arg value="--rgw"/>
+	    	<arg value="file=${data.temp}/${basename}.sql"/>
+		</exec>
+	</target>
+	
+	<!-- extract complete routing graph -->
+	<target name="extract-completeGraph">
+		<basename file="${file}" property="basename" suffix=".osm.pbf" />
+		<exec executable="${osmosis}">
+			<arg value="--rb" />
+			<arg value="${file}" />
+			<arg value="--rgc" />
+			<arg value="xml-config=${configXmlFile}" />
+			<arg value="needed-vehicle=motorcar" />
+			<arg value="metric=fastest-motorcar" />
+			<arg value="output-sql=${data.temp}/${basename}.sql"/>
+            <arg value="saveStatsToPbf=${saveStatsToPbf}"/>
+			<arg value="output-pbf=${data.binary}${basename}Complete.pbf" />
+		</exec>
+	</target>
+
+	<!-- import routing graph to database -->
+	<target name="import-rg">
+		<basename file="${file}" property="basename" suffix=".osm.pbf"/>
+		<exec executable="${psql}">
+			<env key="PGPASSWORD" value="${db.pass}"/> 
+		    <arg value="-U"/>
+			<arg value="${db.user}"/>
+		    <arg value="-d"/>
+			<arg value="${db.name}"/>
+			<arg value="-h"/>
+			<arg value="${db.host}"/>
+			<arg value="-p"/>
+			<arg value="${db.port}"/>
+			<arg value="-f"/>
+			<arg value="${data.temp}/${basename}.sql"/>
+		</exec>
+	</target>
+		
+	<!-- include turn restrictions -->
+    <target name="include-turn-restrictions">
+        <basename file="${file}" property="basename" suffix=".osm.pbf" />
+        <java fork="true" classname="org.mapsforge.routing.graph.creation.extraction.turnRestrictions.TurnRestrictionUtil">
+            <jvmarg value="-Xmx${xmx}"/>
+            <arg value="${db.host}" />
+            <arg value="${db.port}" />
+            <arg value="${db.name}" />
+            <arg value="${db.user}" />
+            <arg value="${db.pass}" />
+            <arg value="${saveStatsToPbf}"/>
+            <arg value="${data.binary}/${basename}Complete.pbf" />
+            <classpath>
+                <pathelement location="dist/mapsforge-offboard-routing-${mapsforge.version}.jar" />
+                <fileset dir="lib">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+    </target>
+
+	<!-- produce onboard routing binary -->
+	<target name="produce-onboard-routing-binary">
+		<basename file="${file}" property="basename" suffix=".osm.pbf"/>
+		<java fork="true" classname="org.mapsforge.routing.hh.preprocessing.CommandLineUtil">
+            <jvmarg value="-Xmx${xmx}"/>
+            <jvmarg value="-Djava.util.logging.config.file=logging.properties"/>
+         	<arg value="${data.binary}/${basename}.mobileHH"/>
+			<arg value="--format=mobile"/>
+            <arg value="-host=${db.host}"/>
+            <arg value="-port=${db.port}"/>
+            <arg value="-dbName=${db.name}"/>
+            <arg value="-user=${db.user}"/>
+            <arg value="-pwd=${db.pass}"/>
+            <!--   <arg value="-s"/> --> <!-- Option for graph without hierarchies -->
+			<classpath>
+				<pathelement location="dist/mapsforge-onboard-routing-${mapsforge.version}.jar"/>
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+       		    </fileset>
+         	</classpath>
+       	</java>
+	</target>
+	
+	<!-- produce offboard routing binary -->
+	<target name="produce-offboard-routing-binary">
+		<basename file="${file}" property="basename" suffix=".osm.pbf"/>
+	    <java fork="true" classname="org.mapsforge.routing.hh.preprocessing.CommandLineUtil">
+            <jvmarg value="-Xmx${xmx}"/>
+            <arg value="${data.binary}/${basename}.hh" />
+            <arg value="--format=server" />
+            <arg value="-host=${db.host}"/>
+            <arg value="-port=${db.port}"/>
+            <arg value="-dbName=${db.name}"/>
+            <arg value="-user=${db.user}"/>
+            <arg value="-pwd=${db.pass}"/>
+	    	<classpath>
+				<pathelement location="dist/mapsforge-offboard-routing-${mapsforge.version}.jar"/>
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+       		    </fileset>
+         	</classpath>
+       	</java>
+	</target>
+
+	<!-- produce onboard routing binary for CH routing -->
+	<target name="produce-onboard-routing-binary-ch">
+		<basename file="${file}" property="basename" suffix=".osm.pbf"/>
+		<java fork="true" classname="org.mapsforge.routing.ch.preprocessing.CommandLine">
+            <jvmarg value="-Djava.util.logging.config.file=logging.properties"/>
+         	<arg value="${data.binary}/${basename}.mch"/>
+			<arg value="--format=mobile"/>
+			<classpath>
+				<pathelement location="dist/mapsforge-onboard-routing-${mapsforge.version}.jar"/>
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+       		    </fileset>
+         	</classpath>
+       	</java>
+	</target>
+
+	<!-- produce offboard routing binary for CH routing -->
+    <!-- TODO: not implemented, yet
+	<target name="produce-offboard-routing-binary-ch">
+		<basename file="${file}" property="basename" suffix=".osm.pbf"/>
+	    <java classname="org.mapsforge.routing.ch.preprocessing.CommandLine">
+            <jvmarg value="Xmx${xmx}"/>
+         	<arg value="${data.binary}/${basename}.ch"/>
+	    	<arg value="-[REMOVE]-format=server"/>
+	    	<classpath>
+				<pathelement location="dist/mapsforge-offboard-routing-${mapsforge.version}.jar"/>
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+       		    </fileset>
+         	</classpath>
+       	</java>
+	</target>
+    -->
+
+	<!-- delete all data files -->
+	<target name="clean">
+		<delete dir="${data.osm}"/>
+		<delete dir="${data.binary}"/>
+		<delete dir="${data.temp}"/>		
+	</target>
+		
+</project>

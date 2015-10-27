@@ -1,0 +1,8 @@
+/target
+/.pmd_ruleset.xml
+/.checkstyle
+/.checkstyle_rules.xml
+/.pmd
+/.project
+/.classpath
+/.settings

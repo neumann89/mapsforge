@@ -31,8 +31,12 @@
 		<module>mapsforge-map-awt</module>
 		<module>mapsforge-map-reader</module>
 		<module>mapsforge-map-writer</module>
+		<module>mapsforge-routing</module>
+		<module>mapsforge-poi-writer</module>
+		<module>mapsforge-poi-reader</module>
+		<module>mapsforge-poi-searching</module>
 		<module>Applications/Android/Samples</module>
-		<module>SwingMapViewer</module>		
+		<module>SwingMapViewer</module>
 	</modules>
 
 	<scm>
